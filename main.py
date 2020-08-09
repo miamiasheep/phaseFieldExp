@@ -1,12 +1,6 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-from fipy import Variable, CellVariable, Grid2D, TransientTerm, DiffusionTerm, ImplicitSourceTerm, Viewer, \
+from fipy import Variable, CellVariable, Grid2D, TransientTerm, DiffusionTerm, ImplicitSourceTerm, \
     Matplotlib2DGridViewer
 from fipy.tools import numerix
-import pylab
 from builtins import range
 
 
@@ -77,12 +71,14 @@ if __name__ == '__main__':
     phase.setValue(1., where=((x - C[0]) ** 2 + (y - C[1]) ** 2) < radius ** 2)
     dT.setValue(-0.5)
 
-    steps = 21
+    steps = 201
+    granularity = 10
+    fileName = 'snapshot/exp1'
     viewer = DentriteViewer(phase=phase, dT=dT, title=r"%s & %s" % (phase.name, dT.name), datamin=-0.1, datamax=0.05)
     for i in range(steps):
         phase.updateOld()
         dT.updateOld()
         phaseEq.solve(phase, dt=dt)
         heatEq.solve(dT, dt=dt)
-        if i % 10 == 0:
-            viewer.plot(filename='snapshot/exp2_{}.png'.format(i))
+        if i % granularity == 0:
+            viewer.plot(filename='fileName_{}.png'.format(fileName, i))
