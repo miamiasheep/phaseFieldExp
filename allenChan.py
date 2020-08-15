@@ -2,7 +2,7 @@ from fipy import Variable, CellVariable, Grid2D, TransientTerm, DiffusionTerm, I
     Matplotlib2DGridViewer
 from fipy.tools import numerix
 from builtins import range
-
+import pylab
 
 class DentriteViewer(Matplotlib2DGridViewer):
     def __init__(self, dT, title=None, limits={}, **kwlimits):
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     steps = 201
     granularity = 10
-    fileName = 'snapshot/exp1'
+    fileName = 'snapshot/exp3'
     viewer = DentriteViewer(phase=phase, dT=dT, title=r"%s & %s" % (phase.name, dT.name), datamin=-0.1, datamax=0.05)
     for i in range(steps):
         phase.updateOld()
@@ -81,4 +81,4 @@ if __name__ == '__main__':
         phaseEq.solve(phase, dt=dt)
         heatEq.solve(dT, dt=dt)
         if i % granularity == 0:
-            viewer.plot(filename='fileName_{}.png'.format(fileName, i))
+            viewer.plot(filename='{}_{}.png'.format(fileName, i))
