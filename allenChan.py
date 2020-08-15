@@ -1,8 +1,10 @@
+import pylab
+import argparse
+from pathlib import Path
 from fipy import Variable, CellVariable, Grid2D, TransientTerm, DiffusionTerm, ImplicitSourceTerm, \
     Matplotlib2DGridViewer
 from fipy.tools import numerix
 from builtins import range
-import pylab
 
 class DentriteViewer(Matplotlib2DGridViewer):
     def __init__(self, dT, title=None, limits={}, **kwlimits):
@@ -27,6 +29,13 @@ class DentriteViewer(Matplotlib2DGridViewer):
 
 
 if __name__ == '__main__':
+    # deal with parameters
+    parser = argparse.ArgumentParser(description='Allen Cahn Model Simulator')
+    parser.add_argument('--filename', default='test', help='Output Path Directory')
+    parser.add_argument('--iteration', default=10000, type=int, help='Number of Iteration')
+    parser.add_argument('--interval', default=500, type=int, help='Interval Output Plot')
+    args = parser.parse_args()
+
     # initialize mesh
     nx = ny = 500
     dx = dy = 0.025
@@ -41,7 +50,6 @@ if __name__ == '__main__':
     dT = CellVariable(name=r'$\Delta T$', mesh=mesh, hasOld=True)
     heatEq = (TransientTerm() == DiffusionTerm(D) + (phase - phase.old) / dt)
 
-    #
     alpha = 0.015
     c = 0.02
     N = 6.0
@@ -71,14 +79,18 @@ if __name__ == '__main__':
     phase.setValue(1., where=((x - C[0]) ** 2 + (y - C[1]) ** 2) < radius ** 2)
     dT.setValue(-0.5)
 
-    steps = 201
-    granularity = 10
-    fileName = 'snapshot/exp3'
+    steps = args.iteration
     viewer = DentriteViewer(phase=phase, dT=dT, title=r"%s & %s" % (phase.name, dT.name), datamin=-0.1, datamax=0.05)
+    Path(args.filename).mkdir(parents=True, exist_ok=True)
+    Path('result').mkdir(parents=True, exist_ok=True)
     for i in range(steps):
         phase.updateOld()
         dT.updateOld()
         phaseEq.solve(phase, dt=dt)
         heatEq.solve(dT, dt=dt)
-        if i % granularity == 0:
-            viewer.plot(filename='{}_{}.png'.format(fileName, i))
+        if i % args.interval == 0:
+            viewer.plot(filename='{}/{}.png'.format(args.filename, i))
+        # final step
+        if i == (steps - 1):
+            viewer.plot(filename='{}/result.png'.format(args.filename))
+            viewer.plot(filename='result/{}.png'.format(args.filename))
