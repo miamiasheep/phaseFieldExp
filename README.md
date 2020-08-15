@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ## Execute
 ```
-python main.py
+python allenCahn.py
 ```
 
 ## Enviroment
