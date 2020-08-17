@@ -33,11 +33,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Allen Cahn Model Simulator')
     parser.add_argument('--filename', default='test', help='Output Path Directory')
     parser.add_argument('--iteration', default=1000, type=int, help='Number of Iteration')
-    parser.add_argument('--interval', default=500, type=int, help='Interval Output Plot')
-    parser.add_argument('--D', default=2.25, type=float, help='Diffusion Constant')
-    parser.add_argument('--alpha', default=0.015, type=float, help='alpha')
+    parser.add_argument('--interval', default=10, type=int, help='Interval Output Plot')
+    parser.add_argument('--D', default=2.25, type=float, help='Diffusion Constant(Default:2.25)')
+    parser.add_argument('--alpha', default=0.015, type=float, help='alpha(Default:0.015)')
+    parser.add_argument('--kappa1', default=0.9, type=float, help='kappa1(Default:0.9)')
+    parser.add_argument('--kappa2', default=20, type=float, help='kappa2(Default:20)')
     args = parser.parse_args()
-    paramStr = 'D_{}_alpha_{}'.format(args.D, args.alpha)
+    paramStr = 'D_{}_alpha_{}_kappa1_{}_kappa2_{}'.format(args.D, args.alpha, args.kappa1, args.kappa2)
 
     # initialize mesh
     nx = ny = 500
@@ -69,8 +71,8 @@ if __name__ == '__main__':
     D = alpha ** 2 * (1. + c * beta) * (Ddia * I0 + Doff * I1)
 
     tau = 3e-4
-    kappa1 = 0.9
-    kappa2 = 20.
+    kappa1 = args.kappa1
+    kappa2 = args.kappa2
     phaseEq = (TransientTerm(tau)
                == DiffusionTerm(D)
                            + ImplicitSourceTerm((phase - 0.5 - kappa1 / numerix.pi * numerix.arctan(kappa2 * dT))
@@ -94,6 +96,7 @@ if __name__ == '__main__':
         dT.updateOld()
         phaseEq.solve(phase, dt=dt)
         heatEq.solve(dT, dt=dt)
+        print(i)
         if i % args.interval == 0:
             viewer.plot(filename='/tmp/{}/{}_{}.png'.format(args.filename, paramStr, i))
         # final step
